@@ -1,4 +1,7 @@
 
+// ignore_for_file: deprecated_member_use
+
+
 import 'package:flutter/material.dart';
 import 'package:tic_tac_toe/board_tile.dart';
 import 'package:tic_tac_toe/tile_state.dart';
@@ -15,15 +18,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _boardState = List.filled(9, TileState.EMPTY);
+  var _boardState = List.filled(9, TileState.EMPTY);
   var _currentTurn=TileState.CROSS;
-
+  final navigationKey=GlobalKey<NavigatorState>();
+   bool gameHasStarted=false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigationKey,
       home: Scaffold(
         body: Center(
-          child: Stack(children: [
+          child: Stack(
+            children: [
             Image.asset('images/board.png'),
             _boardTiles(),
           ],),
@@ -61,11 +67,78 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _updateTileStateForIndex(int selectedIndex){
+    gameHasStarted=true;
     if(_boardState[selectedIndex]==TileState.EMPTY){
       setState(() {
           _boardState[selectedIndex]=_currentTurn;
           _currentTurn=_currentTurn==TileState.CROSS?TileState.CIRCLE:TileState.CROSS;
       });
+      final winner = _findWinner();
+      if(winner!=null){
+        _showWinnerDialog(winner);
+      }
     }
+  }
+
+  TileState? _findWinner() {
+    // ignore: prefer_function_declarations_over_variables
+    TileState? Function(int, int, int) winnerForMatch = (a, b, c) {
+      if (_boardState[a] != TileState.EMPTY) {
+        if ((_boardState[a] == _boardState[b]) &&
+            (_boardState[b] == _boardState[c])) {
+              gameHasStarted=false;
+          return _boardState[a];
+        }
+      }
+      return null;
+    };
+
+
+    final checks=[
+      winnerForMatch(0,1,2),
+      winnerForMatch(3,4,5),
+      winnerForMatch(6,7,8),
+      winnerForMatch(0,3,6),
+      winnerForMatch(1,4,7),
+      winnerForMatch(2,5,8),
+      winnerForMatch(0,4,8),
+      winnerForMatch(2,4,6),
+    ];
+    TileState? winner;
+    for(int i=0;i<checks.length;i++){
+      if(checks[i]!=null){
+        winner=checks[i];
+        break;
+      }
+    }  
+    return winner;
+  }
+
+  void _showWinnerDialog(TileState tileState){
+    final context= navigationKey.currentState!.overlay!.context;
+    showDialog(
+      context : context,//chek
+      builder: (_){
+        return AlertDialog(
+          title: const Text('Winner'),
+          content: Image.asset(
+            tileState==TileState.CROSS?'images/x.png':'images/o.png',
+          ),
+          actions: [
+            FlatButton(
+              onPressed: (){
+                _resetGame();
+                Navigator.of(context).pop();
+              }, 
+              child: const Text('New Game'))],
+        );
+      },
+      );
+  }
+  void _resetGame(){
+    setState(() {
+      _boardState=List.filled(9, TileState.EMPTY);
+      _currentTurn=TileState.CROSS;
+    });
   }
 }

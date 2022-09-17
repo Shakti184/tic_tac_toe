@@ -8,7 +8,7 @@ class BoardTile extends StatelessWidget {
   final double tileDimension;
   final VoidCallback onPressed;
   final TileState tileState;
-
+  
   const BoardTile(
     {Key? key,
     required this.tileState,
