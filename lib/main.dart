@@ -20,6 +20,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var _boardState = List.filled(9, TileState.EMPTY);
   var _currentTurn=TileState.CROSS;
+  var count=0;
   final navigationKey=GlobalKey<NavigatorState>();
    bool gameHasStarted=false;
   @override
@@ -28,6 +29,16 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigationKey,
       home: Scaffold(
+        appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(80.0), // here the desired height
+                child: Center(
+                  child: AppBar(
+                    backgroundColor: Colors.blueAccent,
+                    centerTitle: true,
+                    title: const Text("Tic-Tac-Toe " "developed by Shakti"),
+                  ),
+                ),
+            ),
         body: Center(
           child: Stack(
             children: [
@@ -59,7 +70,10 @@ class _MyAppState extends State<MyApp> {
                   return BoardTile(
                     tileState: tileState,
                     tileDimension: tileDimension,
-                    onPressed: ()=>_updateTileStateForIndex(tileIndex),
+                    onPressed: (){
+                        count+=1;
+                      _updateTileStateForIndex(tileIndex);
+                      },
                     );
               }).toList(),
             );
@@ -91,6 +105,7 @@ class _MyAppState extends State<MyApp> {
           return _boardState[a];
         }
       }
+      if(count==9) return TileState.EMPTY;
       return null;
     };
 
@@ -125,7 +140,7 @@ class _MyAppState extends State<MyApp> {
         return AlertDialog(
           title: const Text('Winner'),
           content: Image.asset(
-            tileState==TileState.CROSS?'images/x.png':'images/o.png',
+            tileState==TileState.CROSS?'images/x.png':tileState==TileState.CIRCLE?'images/o.png':'images/game_over.png',
           ),
           actions: [
             FlatButton(
@@ -140,6 +155,7 @@ class _MyAppState extends State<MyApp> {
   }
   void _resetGame(){
     setState(() {
+      count=0;
       _boardState=List.filled(9, TileState.EMPTY);
       _currentTurn=TileState.CROSS;
     });
