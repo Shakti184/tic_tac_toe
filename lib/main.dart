@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: navigationKey,
       home: Scaffold(
         body: Center(
@@ -105,19 +106,21 @@ class _MyAppState extends State<MyApp> {
       winnerForMatch(2,4,6),
     ];
     TileState? winner;
-    for(int i=0;i<checks.length;i++){
+    int i=0;
+    for(i=0;i<=checks.length;i++){
       if(checks[i]!=null){
         winner=checks[i];
         break;
       }
     }  
+    
     return winner;
   }
 
   void _showWinnerDialog(TileState tileState){
     final context= navigationKey.currentState!.overlay!.context;
     showDialog(
-      context : context,//chek
+      context : context,
       builder: (_){
         return AlertDialog(
           title: const Text('Winner'),
